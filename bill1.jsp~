@@ -1,0 +1,63 @@
+<%@page import="java.sql.*"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+<title>JSP page</title>
+</head>
+<body>
+<%
+try
+{
+	Connection con;
+	Statement stmt;
+	PreparedStatement pstmt;
+	ResultSet res;
+	String from,to;
+        float no1,no2,sum=0;
+	String m;
+
+        int cid=Integer.parseInt(request.getParameter("cid"));
+         out.println("cid="+cid);
+	from=request.getParameter("from");
+        out.println("from="+from);
+        to=request.getParameter("to");
+         out.println("to="+to);
+ 
+
+	Class.forName("org.postgresql.Driver");
+	con=DriverManager.getConnection("jdbc:postgresql:milk1","postgres","postgres");
+	stmt=con.createStatement();
+
+	if(con==null)
+	{
+		out.println("Not connected:");
+	}
+	else
+	{
+		res=stmt.executeQuery("select  sum(milk_qty) from combine where cid="+cid+" and date between '"+from+"' and '"+to+"'");
+		if(res.next())
+		{
+			m=res.getString(1);
+                        no1=Float.parseFloat(m);
+			out.println("m="+no1);
+                    	sum=sum+no1;
+		}
+		res=stmt.executeQuery("select rate from customer where cid="+cid);
+		if(res.next())
+		{
+                        no2=res.getFloat("rate");
+                        sum=sum*no2;
+			out.println("result="+no2);
+                         out.println("sum="+sum);
+                  //      session.setAttribute("quantity",sum);
+                 //        response.sendRedirect("bill2.jsp");
+		}
+	}
+	
+}
+catch(Exception e){}
+%>
+</body>
+</html>
+

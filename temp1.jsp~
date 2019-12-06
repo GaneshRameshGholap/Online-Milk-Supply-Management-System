@@ -1,0 +1,77 @@
+<%@page import="java.sql.*"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+<title>JSP page</title>
+</head>
+<body>
+<%
+try
+{
+	Connection con;
+	Statement stmt;
+	PreparedStatement pstmt,pstmt1;
+	ResultSet res;
+        float q;
+        int cid,eid;
+        float rate,qty;
+	String first,last,add,email,contact,ctype,city,pass1;
+
+        cid=Integer.parseInt(request.getParameter("cid"));
+
+	first=request.getParameter("first");
+	last=request.getParameter("last");
+	add=request.getParameter("address");
+	email=request.getParameter("email");
+	contact=request.getParameter("contact");
+	ctype=request.getParameter("ctype");
+	city=request.getParameter("city");
+
+	rate=Float.parseFloat(request.getParameter("rate"));
+        qty=Float.parseFloat(request.getParameter("qty"));
+
+	pass1=request.getParameter("password");
+
+        eid=Integer.parseInt(request.getParameter("eid"));
+
+	Class.forName("org.postgresql.Driver");
+	con=DriverManager.getConnection("jdbc:postgresql:milk1","postgres","postgres");
+	pstmt=con.prepareStatement("Insert into customer values(?,?,?,?,?,?,?,?,?,?,?,?)");
+        pstmt1=con.prepareStatement("delete from temp where contact='?'"); 
+        pstmt.setInt(1,cid);
+
+	pstmt.setString(2,first);
+	pstmt.setString(3,last);
+	pstmt.setString(4,add);
+	pstmt.setString(5,email);
+	pstmt.setString(6,contact);
+	pstmt.setString(7,ctype);
+	pstmt.setString(8,city);
+
+	pstmt.setFloat(9,rate);
+        pstmt.setFloat(10,qty);
+
+	pstmt.setString(11,pass1);
+        pstmt.setInt(12,eid);
+	int n=pstmt.executeUpdate();
+        pstmt1.setString(1,contact);
+        int m=pstmt1.executeUpdate();
+        if(m!=0)
+       {
+        session=request.getSession(true);
+        session.setAttribute("temp","1");
+        response.sendRedirect("cust.jsp");
+       }
+       else
+       {
+       session=request.getSession(true);
+        session.setAttribute("temp1","2");
+        response.sendRedirect("cust.jsp");
+       }
+}
+catch(Exception e){}
+%>
+</body>
+</html>
+

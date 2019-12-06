@@ -1,0 +1,147 @@
+postgres=# create database milk1;
+CREATE DATABASE
+
+
+
+postgres=# \c milk1;
+psql (8.4.18)
+You are now connected to database "milk1".
+
+milk1=# create table admin(uid varchar(10) primary key,password varchar(10));
+NOTICE:  CREATE TABLE / PRIMARY KEY will create implicit index "admin_pkey" for table "admin"
+CREATE TABLE
+
+
+milk1=# create table customer(cid integer primary key,first_name varchar(30),last_name varchar(30),address text,email varchar(30),contact varchar(10),ctype varchar(30),city varchar(30),rate float,milk_qty float,password varchar(30),eid integer);
+NOTICE:  CREATE TABLE / PRIMARY KEY will create implicit index "customer_pkey" for table "customer"
+CREATE TABLE
+
+milk1=# \d customer;
+            Table "public.customer"
+   Column   |         Type          | Modifiers 
+------------+-----------------------+-----------
+ cid        | integer               | not null
+ first_name | character varying(30) | 
+ last_name  | character varying(30) | 
+ address    | text                  | 
+ email      | character varying(30) | 
+ contact    | character varying(10) | 
+ ctype      | character varying(30) | 
+ city       | character varying(30) | 
+ rate       | double precision      | 
+ milk_qty   | double precision      | 
+ password   | character varying(30) | 
+ eid        | integer               | 
+Indexes:
+    "customer_pkey" PRIMARY KEY, btree (cid)
+
+
+milk1=# create table employee(eid integer primary key,ename varchar(30),eaddress text,email varchar(30),contact varchar(10),city varchar(20),password varchar(30));
+NOTICE:  CREATE TABLE / PRIMARY KEY will create implicit index "employee_pkey" for table "employee"
+CREATE TABLE
+
+
+milk1=# \d employee;
+           Table "public.employee"
+  Column  |         Type          | Modifiers 
+----------+-----------------------+-----------
+ eid      | integer               | not null
+ ename    | character varying(30) | 
+ eaddress | text                  | 
+ email    | character varying(30) | 
+ contact  | character varying(10) | 
+ city     | character varying(20) | 
+ password | character varying(30) | 
+Indexes:
+    "employee_pkey" PRIMARY KEY, btree (eid)
+
+milk1=# create table combine(eid integer references employee(eid)on delete cascade on update set null,cid integer references customer(cid)on delete cascade on update set null,milk_qty float,date varchar(10));
+CREATE TABLE
+
+
+milk1=# \d combine;
+            Table "public.combine"
+  Column  |         Type          | Modifiers 
+----------+-----------------------+-----------
+ eid      | integer               | 
+ cid      | integer               | 
+ milk_qty | double precision      | 
+ date     | character varying(10) | 
+Foreign-key constraints:
+    "combine_cid_fkey" FOREIGN KEY (cid) REFERENCES customer(cid) ON UPDATE SET NULL ON DELETE CASCADE
+    "combine_eid_fkey" FOREIGN KEY (eid) REFERENCES employee(eid) ON UPDATE SET NULL ON DELETE CASCADE
+
+milk1=# create table updated(cid integer,changedate varchar(10),qty float,eid integer,cname varchar(30));
+CREATE TABLE
+
+milk1=# create table salary(sid serial primary key,eid integer references employee(eid)on delete cascade on update set null,rate float,total_qty float,total_sal float,month varchar(10),year integer);
+NOTICE:  CREATE TABLE will create implicit sequence "salary_sid_seq" for serial column "salary.sid"
+NOTICE:  CREATE TABLE / PRIMARY KEY will create implicit index "salary_pkey" for table "salary"
+CREATE TABLE
+
+milk1=# \d salary;
+                                  Table "public.salary"
+  Column   |         Type          |                      Modifiers                       
+-----------+-----------------------+------------------------------------------------------
+ sid       | integer               | not null default nextval('salary_sid_seq'::regclass)
+ eid       | integer               | 
+ rate      | double precision      | 
+ total_qty | double precision      | 
+ total_sal | double precision      | 
+ month     | character varying(10) | 
+ year      | integer               | 
+Indexes:
+    "salary_pkey" PRIMARY KEY, btree (sid)
+Foreign-key constraints:
+    "salary_eid_fkey" FOREIGN KEY (eid) REFERENCES employee(eid) ON UPDATE SET NULL ON DELETE CASCADE
+
+
+
+
+milk1=# create table temp(first_name varchar(30),last_name varchar(30),address text,email varchar(30),contact varchar(10),ctype varchar(30),city varchar(30),milk_qty float,password varchar(30));
+CREATE TABLE
+
+milk1=# \d temp;
+              Table "public.temp"
+   Column   |         Type          | Modifiers 
+------------+-----------------------+-----------
+ first_name | character varying(30) | 
+ last_name  | character varying(30) | 
+ address    | text                  | 
+ email      | character varying(30) | 
+ contact    | character varying(10) | 
+ ctype      | character varying(30) | 
+ city       | character varying(30) | 
+ milk_qty   | double precision      | 
+ password   | character varying(30) | 
+
+
+
+
+
+
+
+milk1=# create table bill(bid serial primary key,paydate varchar(10),amount float,pmode varchar(30),status varchar(3),cid integer references customer(cid) on delete cascade on update set null,fromdate varchar(10),todate varchar(10));
+NOTICE:  CREATE TABLE will create implicit sequence "bill_bid_seq" for serial column "bill.bid"
+NOTICE:  CREATE TABLE / PRIMARY KEY will create implicit index "bill_pkey" for table "bill"
+CREATE TABLE
+
+milk1=# \d bill;
+                                  Table "public.bill"
+  Column  |         Type          |                     Modifiers                      
+----------+-----------------------+----------------------------------------------------
+ bid      | integer               | not null default nextval('bill_bid_seq'::regclass)
+ paydate  | character varying(10) | 
+ amount   | double precision      | 
+ pmode    | character varying(30) | 
+ status   | character varying(3)  | 
+ cid      | integer               | 
+ fromdate | character varying(10) | 
+ todate   | character varying(10) | 
+Indexes:
+    "bill_pkey" PRIMARY KEY, btree (bid)
+Foreign-key constraints:
+    "bill_cid_fkey" FOREIGN KEY (cid) REFERENCES customer(cid) ON UPDATE SET NULL ON DELETE CASCADE
+
+
+
